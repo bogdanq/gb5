@@ -1,45 +1,71 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
+import debounce from "lodash.debounce";
 import { Input, InputAdornment } from "@mui/material";
 import { Send } from "@mui/icons-material";
 import { Message } from "./message";
 import { useStyles } from "./use-styles";
 
 export const MessageList = () => {
+  const { roomId } = useParams();
   const styles = useStyles();
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState({});
   const [value, setValue] = useState("");
 
   const ref = useRef(null);
+  const refWrapper = useRef(null);
+
+  const sendMessage = useCallback(
+    (author = "User", botMessage) => {
+      if (value || botMessage) {
+        setMessages({
+          ...messages,
+          [roomId]: [
+            ...(messages[roomId] ?? []),
+            { author, message: value || botMessage, date: new Date() },
+          ],
+        });
+        setValue("");
+      }
+    },
+    [messages, value, roomId]
+  );
 
   useEffect(() => {
-    const lastMessages = messages[messages.length - 1];
+    if (refWrapper.current) {
+      refWrapper.current.scrollTo(0, refWrapper.current.scrollHeight);
+    }
+  }, [messages]);
+
+  useEffect(() => {
+    let block = refWrapper.current;
+
+    const cb = debounce(() => console.log("height", block?.scrollTop), 200);
+
+    if (refWrapper.current) {
+      block?.addEventListener("scroll", cb);
+    }
+
+    return () => block?.removeEventListener("scroll", cb);
+  }, []);
+
+  useEffect(() => {
+    const roomMessages = messages[roomId] ?? [];
+    const lastMessages = roomMessages[roomMessages.length - 1];
     let timerId = null;
 
-    if (messages.length && lastMessages.author !== "Bot") {
+    if (roomMessages.length && lastMessages.author !== "Bot") {
       timerId = setTimeout(() => {
-        setMessages([
-          ...messages,
-          { author: "Bot", message: "hello from bot" },
-        ]);
+        sendMessage("Bot", "Hello from bot");
       }, 200);
     }
 
     return () => clearInterval(timerId);
-  }, [messages]);
+  }, [messages, roomId, sendMessage]);
 
   useEffect(() => {
     ref.current?.focus();
   }, []);
-
-  const sendMessage = () => {
-    if (value) {
-      setMessages([
-        ...messages,
-        { author: "User", message: value, date: new Date() },
-      ]);
-      setValue("");
-    }
-  };
 
   const handlePressInput = ({ code }) => {
     if (code === "Enter") {
@@ -47,11 +73,15 @@ export const MessageList = () => {
     }
   };
 
+  const roomMessages = messages[roomId] ?? [];
+
   return (
-    <div className={styles.wrapper}>
-      {messages.map((message, index) => (
-        <Message message={message} key={index} />
-      ))}
+    <>
+      <div ref={refWrapper}>
+        {roomMessages.map((message, index) => (
+          <Message message={message} key={index} />
+        ))}
+      </div>
 
       <Input
         fullWidth
@@ -67,7 +97,7 @@ export const MessageList = () => {
           </InputAdornment>
         }
       />
-    </div>
+    </>
   );
 };
 
