@@ -1,33 +1,31 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import { Provider } from "react-redux";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { ThemeProvider, createTheme } from "@mui/material";
 import { Header } from "./components";
-import { ChatPage } from "./pages";
+import { ChatPage, ProfilePage } from "./pages";
+import { CustomThemeProvider } from "./theme-context";
+import { store } from "./store";
+// import { store } from "./store/my-redux";
 
 import "./palette.css";
 import "./global.css";
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: "#0000ff",
-    },
-  },
-});
-
 ReactDOM.render(
   <React.StrictMode>
-    <ThemeProvider theme={theme}>
-      <BrowserRouter>
-        <Header />
+    <Provider store={store}>
+      <CustomThemeProvider>
+        <BrowserRouter>
+          <Header />
 
-        <Routes>
-          <Route path="/" element={<h1>Home Page</h1>} />
-          <Route path="/chat/*" element={<ChatPage />} />
-        </Routes>
-      </BrowserRouter>
-    </ThemeProvider>
+          <Routes>
+            <Route path="/" element={<h1>Home Page</h1>} />
+            <Route path="/chat/*" element={<ChatPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+          </Routes>
+        </BrowserRouter>
+      </CustomThemeProvider>
+    </Provider>
   </React.StrictMode>,
   document.getElementById("root")
 );

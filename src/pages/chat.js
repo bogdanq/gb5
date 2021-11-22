@@ -1,9 +1,14 @@
-import { useEffect } from "react";
+import { useEffect, useContext } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { Layout, ChatList, MessageList } from "../components";
+import { ThemaContext } from "../theme-context";
 
 export const ChatPage = () => {
   const navigate = useNavigate();
+
+  const {
+    theme: { theme },
+  } = useContext(ThemaContext);
 
   useEffect(() => {
     const listener = ({ code }) => {
@@ -24,7 +29,7 @@ export const ChatPage = () => {
         element={
           <Layout
             chats={<ChatList />}
-            messages={<h1 style={{ color: "#fff" }}>выберите чат ...</h1>}
+            messages={<h1 style={{ color: theme.color }}>выберите чат ...</h1>}
           />
         }
       />
