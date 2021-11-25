@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -11,21 +11,26 @@ import { store } from "./store";
 import "./palette.css";
 import "./global.css";
 
-ReactDOM.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <CustomThemeProvider>
-        <BrowserRouter>
-          <Header />
+const App = () => {
+  const [count, setCount] = useState(0);
+  return (
+    <React.StrictMode>
+      <Provider store={store}>
+        <CustomThemeProvider>
+          <BrowserRouter>
+            {/* <button onClick={() => setCount(count + 1)}>setCount</button> */}
+            <Header count={count} />
 
-          <Routes>
-            <Route path="/" element={<h1>Home Page</h1>} />
-            <Route path="/chat/*" element={<ChatPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-          </Routes>
-        </BrowserRouter>
-      </CustomThemeProvider>
-    </Provider>
-  </React.StrictMode>,
-  document.getElementById("root")
-);
+            <Routes>
+              <Route path="/" element={<h1>Home Page</h1>} />
+              <Route path="/chat/*" element={<ChatPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+            </Routes>
+          </BrowserRouter>
+        </CustomThemeProvider>
+      </Provider>
+    </React.StrictMode>
+  );
+};
+
+ReactDOM.render(<App />, document.getElementById("root"));

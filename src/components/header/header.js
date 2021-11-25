@@ -26,3 +26,17 @@ export function Header() {
     </div>
   );
 }
+
+// const mapStateToProps = (state) => {
+//   return {
+//     profile: state.profile,
+//   };
+// };
+
+// const mapDispatchToProps = (dispatch) => {
+//   return {
+//     togleVisibleProfileDispatch: () => dispatch(togleVisibleProfile()),
+//   };
+// };
+
+// export const Header = connect(mapStateToProps, mapDispatchToProps)(HeaderView);

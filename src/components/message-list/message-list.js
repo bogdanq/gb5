@@ -1,34 +1,35 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
-import debounce from "lodash.debounce";
+import { useParams, useNavigate } from "react-router-dom";
+// import debounce from "lodash.debounce";
 import { Input, InputAdornment } from "@mui/material";
 import { Send } from "@mui/icons-material";
 import { Message } from "./message";
 import { useStyles } from "./use-styles";
+import { messagesSelector, sendMessage } from "../../store/messages";
+import { conversationsSelector } from "../../store/conversations";
+import { useDispatch, useSelector } from "react-redux";
 
 export const MessageList = () => {
   const { roomId } = useParams();
+  const navigate = useNavigate();
   const styles = useStyles();
-  const [messages, setMessages] = useState({});
+  const messages = useSelector(messagesSelector(roomId));
+  const conversations = useSelector(conversationsSelector);
   const [value, setValue] = useState("");
+
+  const dispatch = useDispatch();
 
   const ref = useRef(null);
   const refWrapper = useRef(null);
 
-  const sendMessage = useCallback(
+  const send = useCallback(
     (author = "User", botMessage) => {
       if (value || botMessage) {
-        setMessages({
-          ...messages,
-          [roomId]: [
-            ...(messages[roomId] ?? []),
-            { author, message: value || botMessage, date: new Date() },
-          ],
-        });
+        dispatch(sendMessage({ author, message: value || botMessage }, roomId));
         setValue("");
       }
     },
-    [messages, value, roomId]
+    [value, roomId, dispatch]
   );
 
   useEffect(() => {
@@ -38,30 +39,37 @@ export const MessageList = () => {
   }, [messages]);
 
   useEffect(() => {
-    let block = refWrapper.current;
+    const isValidRoomId = conversations.includes(roomId);
 
-    const cb = debounce(() => console.log("height", block?.scrollTop), 200);
-
-    if (refWrapper.current) {
-      block?.addEventListener("scroll", cb);
+    if (!isValidRoomId && roomId) {
+      navigate("/chat");
     }
+  }, [roomId, conversations, navigate]);
 
-    return () => block?.removeEventListener("scroll", cb);
-  }, []);
+  // useEffect(() => {
+  //   let block = refWrapper.current;
+
+  //   const cb = debounce(() => console.log("height", block?.scrollTop), 200);
+
+  //   if (refWrapper.current) {
+  //     block?.addEventListener("scroll", cb);
+  //   }
+
+  //   return () => block?.removeEventListener("scroll", cb);
+  // }, []);
 
   useEffect(() => {
-    const roomMessages = messages[roomId] ?? [];
-    const lastMessages = roomMessages[roomMessages.length - 1];
+    const lastMessages = messages[messages.length - 1];
     let timerId = null;
 
-    if (roomMessages.length && lastMessages.author !== "Bot") {
+    if (messages.length && lastMessages.author !== "Bot") {
       timerId = setTimeout(() => {
-        sendMessage("Bot", "Hello from bot");
+        send("Bot", "Hello from bot");
       }, 200);
     }
 
     return () => clearInterval(timerId);
-  }, [messages, roomId, sendMessage]);
+  }, [messages, roomId, send]);
 
   useEffect(() => {
     ref.current?.focus();
@@ -69,16 +77,14 @@ export const MessageList = () => {
 
   const handlePressInput = ({ code }) => {
     if (code === "Enter") {
-      sendMessage();
+      send();
     }
   };
-
-  const roomMessages = messages[roomId] ?? [];
 
   return (
     <>
       <div ref={refWrapper}>
-        {roomMessages.map((message, index) => (
+        {messages.map((message, index) => (
           <Message message={message} key={index} />
         ))}
       </div>
@@ -93,7 +99,7 @@ export const MessageList = () => {
         onKeyPress={handlePressInput}
         endAdornment={
           <InputAdornment position="end">
-            <Send className={styles.icon} onClick={sendMessage} />
+            <Send className={styles.icon} onClick={send} />
           </InputAdornment>
         }
       />

@@ -1,19 +1,31 @@
-import { useSelector, useDispatch } from "react-redux";
-import { togleVisibleProfile } from "../store/profile";
+import { useMemo, useState } from "react";
+import { useSelector, useDispatch, shallowEqual } from "react-redux";
+import {
+  togleVisibleProfile,
+  profileSelector,
+  profileNameSelector,
+} from "../store/profile";
 import { ProfileForm } from "../components";
 
 export const ProfilePage = () => {
+  const [count, setCount] = useState(0);
+
+  const profileSelectorByMemo = useMemo(() => {
+    return profileSelector("test props");
+  }, []);
+
   const { isVisibleProfile, firstName, lastName, ...profile } = useSelector(
-    (state) => {
-      return state.profile;
-    }
+    profileSelectorByMemo,
+    shallowEqual
   );
+
+  const s2 = useSelector(profileNameSelector, (prev, next) => next !== prev);
 
   const dispatch = useDispatch();
 
   return (
     <div>
-      <h1>Profile</h1>
+      <h1>Profile {s2}</h1>
 
       {/* @TODO вынести в отдельны компонент */}
       {isVisibleProfile && (
@@ -27,6 +39,8 @@ export const ProfilePage = () => {
       <button onClick={() => dispatch(togleVisibleProfile())}>
         togleVisibleProfile
       </button>
+
+      <button onClick={() => setCount(count + 1)}>count {count}</button>
 
       <ProfileForm firstName={firstName} lastName={lastName} {...profile} />
     </div>
