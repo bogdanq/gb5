@@ -1,19 +1,25 @@
-import { INCREMENT, DECREMENT } from "./types";
+import { TOGLE_VISIBLE_PROFILE, UPDATE_PROFILE } from "./types";
 
-const initialSate = { count: 0, userInfo: null };
+const initialState = {
+  firstName: "firstName",
+  lastName: "lastName",
+  isVisibleProfile: true,
+  role: "admin",
+  phone: "89005761123",
+  country: "ru",
+};
 
-export const profileReducer = (state = initialSate, action) => {
+export const profileReducer = (state = initialState, action) => {
   switch (action.type) {
-    case INCREMENT:
+    case TOGLE_VISIBLE_PROFILE: {
+      return { ...state, isVisibleProfile: !state.isVisibleProfile };
+    }
+    case UPDATE_PROFILE: {
       return {
         ...state,
-        count: state.count + action.payload,
+        ...action.payload,
       };
-    case DECREMENT:
-      return {
-        ...state,
-        count: state.count - action.payload,
-      };
+    }
     default:
       return state;
   }

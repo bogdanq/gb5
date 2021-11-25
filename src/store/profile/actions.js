@@ -1,5 +1,9 @@
-import { INCREMENT, DECREMENT } from "./types";
+import { TOGLE_VISIBLE_PROFILE, UPDATE_PROFILE } from "./types";
 
-export const increment = (step) => ({ type: INCREMENT, payload: step });
+export const togleVisibleProfile = () => {
+  return { type: TOGLE_VISIBLE_PROFILE };
+};
 
-export const decrement = (step) => ({ type: DECREMENT, payload: step });
+export const updateProfile = (profile) => {
+  return { type: UPDATE_PROFILE, payload: profile };
+};
