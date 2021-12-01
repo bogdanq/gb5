@@ -1,12 +1,19 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-// import debounce from "lodash.debounce";
 import { Input, InputAdornment } from "@mui/material";
 import { Send } from "@mui/icons-material";
 import { Message } from "./message";
 import { useStyles } from "./use-styles";
-import { messagesSelector, sendMessage } from "../../store/messages";
-import { conversationsSelector } from "../../store/conversations";
+import {
+  messagesSelector,
+  sendMessage,
+  sendMessageWithBot,
+} from "../../store/messages";
+import {
+  conversationsSelector,
+  messageValueSelector,
+  handleChangeMessageValue,
+} from "../../store/conversations";
 import { useDispatch, useSelector } from "react-redux";
 
 export const MessageList = () => {
@@ -15,7 +22,7 @@ export const MessageList = () => {
   const styles = useStyles();
   const messages = useSelector(messagesSelector(roomId));
   const conversations = useSelector(conversationsSelector);
-  const [value, setValue] = useState("");
+  const value = useSelector(messageValueSelector(roomId));
 
   const dispatch = useDispatch();
 
@@ -25,8 +32,11 @@ export const MessageList = () => {
   const send = useCallback(
     (author = "User", botMessage) => {
       if (value || botMessage) {
-        dispatch(sendMessage({ author, message: value || botMessage }, roomId));
-        setValue("");
+        dispatch(
+          sendMessageWithBot({ author, message: value || botMessage }, roomId)
+        );
+        // dispatch(sendMessage({ author, message: value || botMessage }, roomId));
+        // setValue("");
       }
     },
     [value, roomId, dispatch]
@@ -39,37 +49,14 @@ export const MessageList = () => {
   }, [messages]);
 
   useEffect(() => {
-    const isValidRoomId = conversations.includes(roomId);
+    const isValidRoomId = conversations.find(
+      (conversation) => conversation.title === roomId
+    );
 
     if (!isValidRoomId && roomId) {
       navigate("/chat");
     }
   }, [roomId, conversations, navigate]);
-
-  // useEffect(() => {
-  //   let block = refWrapper.current;
-
-  //   const cb = debounce(() => console.log("height", block?.scrollTop), 200);
-
-  //   if (refWrapper.current) {
-  //     block?.addEventListener("scroll", cb);
-  //   }
-
-  //   return () => block?.removeEventListener("scroll", cb);
-  // }, []);
-
-  useEffect(() => {
-    const lastMessages = messages[messages.length - 1];
-    let timerId = null;
-
-    if (messages.length && lastMessages.author !== "Bot") {
-      timerId = setTimeout(() => {
-        send("Bot", "Hello from bot");
-      }, 200);
-    }
-
-    return () => clearInterval(timerId);
-  }, [messages, roomId, send]);
 
   useEffect(() => {
     ref.current?.focus();
@@ -85,7 +72,12 @@ export const MessageList = () => {
     <>
       <div ref={refWrapper}>
         {messages.map((message, index) => (
-          <Message message={message} key={index} />
+          <Message
+            message={message}
+            key={index}
+            dispatch={dispatch}
+            roomId={roomId}
+          />
         ))}
       </div>
 
@@ -95,7 +87,9 @@ export const MessageList = () => {
         ref={ref}
         placeholder="enter message..."
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={(e) =>
+          dispatch(handleChangeMessageValue(e.target.value, roomId))
+        }
         onKeyPress={handlePressInput}
         endAdornment={
           <InputAdornment position="end">
