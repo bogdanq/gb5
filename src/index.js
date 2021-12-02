@@ -4,13 +4,46 @@ import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Header } from "./components";
-import { ChatPage, ProfilePage } from "./pages";
+import { ChatPage, ProfilePage, Gists } from "./pages";
 import { CustomThemeProvider } from "./theme-context";
 import { store, persistor } from "./store";
 // import { store } from "./store/my-redux";
 
 import "./palette.css";
 import "./global.css";
+
+// const useGists = () => {
+//   const [gists, setGists] = useState([]);
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState(null);
+
+//   useEffect(() => {
+//     const getGists = async () => {
+//       setLoading(true);
+//       try {
+//         const response = await fetch("https://api.github.com/gists/public");
+
+//         if (response.status === 200) {
+//           const data = await response.json();
+
+//           setGists(data);
+//         }
+//       } catch (e) {
+//         setError(e);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     getGists();
+//   }, []);
+
+//   return {
+//     gists,
+//     loading,
+//     error,
+//   };
+// };
 
 const App = () => {
   const [count, setCount] = useState(0);
@@ -28,6 +61,7 @@ const App = () => {
                 <Route path="/" element={<h1>Home Page</h1>} />
                 <Route path="/chat/*" element={<ChatPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/gists" element={<Gists />} />
               </Routes>
             </BrowserRouter>
           </CustomThemeProvider>
