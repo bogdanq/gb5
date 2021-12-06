@@ -1,10 +1,17 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import debounce from "lodash.debounce";
 import { useDispatch, useSelector } from "react-redux";
 import { getGists, gistSelector, searchGistsByUserName } from "../store/gists";
 
 const buttons = Array.from({ length: 10 }).map((_, index) => index + 1);
 
+const searchGistsByUserNameDebounsed = debounce((query, dispatch) => {
+  dispatch(searchGistsByUserName(query ?? "bogdanq"));
+}, 500);
+
 export function Gists() {
+  const [value, setValue] = useState("");
+
   const {
     gists,
     gistsLoading,
@@ -15,19 +22,27 @@ export function Gists() {
   } = useSelector(gistSelector);
   const dispatch = useDispatch();
 
+  // const searchGistsByUserNameDebounsed = useMemo(() => {
+  //   return debounce((query) => {
+  //     dispatch(searchGistsByUserName(query ?? "bogdanq"));
+  //   }, 500);
+  // }, [dispatch]);
+
   useEffect(() => {
     dispatch(getGists());
-    // @TODO lodash.debounce для поиска
-    dispatch(searchGistsByUserName("bogdanq"));
   }, [dispatch]);
 
-  if (gistsError) {
-    return <h1>gistsError</h1>;
-  }
+  useEffect(() => {
+    searchGistsByUserNameDebounsed(value, dispatch);
+  }, [value, dispatch]);
 
-  if (gistsErrorSearch) {
-    return <h1>gistsErrorSearch</h1>;
-  }
+  // if (gistsError) {
+  //   return <h1>gistsError</h1>;
+  // }
+
+  // if (gistsErrorSearch) {
+  //   return <h1>gistsErrorSearch</h1>;
+  // }
 
   return (
     <div style={{ display: "flex" }}>
@@ -48,7 +63,11 @@ export function Gists() {
       <div>
         <h1>Search Gists</h1>
 
-        <input placeholder="enter name..." />
+        <input
+          placeholder="enter name..."
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+        />
 
         {gistsLoadingSearch ? (
           <h1>Loading</h1>

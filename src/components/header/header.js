@@ -1,9 +1,14 @@
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 import { ThemaContext } from "../../theme-context";
+import { firebaseApp } from "../../api/firebase";
 import styles from "./header.module.css";
 
-export function Header() {
+const signOut = () => {
+  return firebaseApp.auth().signOut();
+};
+
+export function Header({ session }) {
   const {
     theme: { theme, name },
     themeSetter,
@@ -12,9 +17,22 @@ export function Header() {
   return (
     <div className={styles.header}>
       <Link to="/">Home</Link>
-      <Link to="/profile">Profile</Link>
-      <Link to="/chat">Chat</Link>
-      <Link to="/gists">Gists</Link>
+      {!!session && (
+        <>
+          <Link to="/profile">Profile</Link>
+          <Link to="/chat">Chat</Link>
+          <Link to="/gists">Gists</Link>
+        </>
+      )}
+
+      {!!session && <button onClick={signOut}>выход</button>}
+
+      {!session && (
+        <>
+          <Link to="/login">Login</Link>
+          <Link to="/sign-up">Sign-up</Link>
+        </>
+      )}
 
       <hr />
       <p style={{ color: theme.color }}>{name}</p>

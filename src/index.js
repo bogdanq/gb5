@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PersistGate } from "redux-persist/integration/react";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Header } from "./components";
-import { ChatPage, ProfilePage, Gists } from "./pages";
+import { Header, PublicRoute, PrivateRoute } from "./components";
+import { ChatPage, ProfilePage, Gists, LoginPage, SignUpPage } from "./pages";
 import { CustomThemeProvider } from "./theme-context";
 import { store, persistor } from "./store";
+import { firebaseApp } from "./api/firebase";
 // import { store } from "./store/my-redux";
 
 import "./palette.css";
@@ -47,6 +48,20 @@ import "./global.css";
 
 const App = () => {
   const [count, setCount] = useState(0);
+  const [session, setSession] = useState(null);
+
+  useEffect(() => {
+    // @TODO создать санк
+    firebaseApp.auth().onAuthStateChanged((user) => {
+      if (user) {
+        setSession(user);
+      } else {
+        setSession(null);
+      }
+    });
+  }, []);
+
+  const isAuth = session?.email;
 
   return (
     <React.StrictMode>
@@ -55,13 +70,50 @@ const App = () => {
           <CustomThemeProvider>
             <BrowserRouter>
               {/* <button onClick={() => setCount(count + 1)}>setCount</button> */}
-              <Header count={count} />
+              <Header count={count} session={session} />
 
               <Routes>
                 <Route path="/" element={<h1>Home Page</h1>} />
-                <Route path="/chat/*" element={<ChatPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/gists" element={<Gists />} />
+                <Route
+                  path="/chat/*"
+                  element={
+                    <PrivateRoute isAuth={isAuth} to="/login">
+                      <ChatPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <PrivateRoute isAuth={isAuth}>
+                      <ProfilePage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/gists"
+                  element={
+                    <PrivateRoute isAuth={isAuth}>
+                      <Gists />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/login"
+                  element={
+                    <PublicRoute isAuth={isAuth}>
+                      <LoginPage />
+                    </PublicRoute>
+                  }
+                />
+                <Route
+                  path="/sign-up"
+                  element={
+                    <PublicRoute isAuth={isAuth}>
+                      <SignUpPage />
+                    </PublicRoute>
+                  }
+                />
               </Routes>
             </BrowserRouter>
           </CustomThemeProvider>

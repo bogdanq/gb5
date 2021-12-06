@@ -1,13 +1,17 @@
 import { nanoid } from "nanoid";
-import { SEND_MESSAGE, DELETE_MESSAGE_BY_ID } from "./types";
+import {
+  SEND_MESSAGE,
+  DELETE_MESSAGE_BY_ID,
+  GET_MESSAGES_START,
+  GET_MESSAGES_SUCCESSS,
+  GET_MESSAGES_ERROR,
+} from "./types";
 import { DELETE_CONVERSATION } from "../types";
 
 const initialState = {
-  messages: {
-    room1: [
-      { date: new Date(), message: "HEllo", author: "Bot", id: nanoid() },
-    ],
-  },
+  messages: {},
+  messagesLoading: false,
+  messagesError: null,
 };
 
 export const messagesReducer = (state = initialState, action) => {
@@ -38,6 +42,27 @@ export const messagesReducer = (state = initialState, action) => {
             (message) => message.id !== action.payload.messageId
           ),
         },
+      };
+
+    case GET_MESSAGES_START:
+      return {
+        ...state,
+        messagesLoading: true,
+        messagesError: null,
+      };
+
+    case GET_MESSAGES_SUCCESSS:
+      return {
+        ...state,
+        messagesLoading: false,
+        messages: action.payload,
+      };
+
+    case GET_MESSAGES_ERROR:
+      return {
+        ...state,
+        messagesLoading: false,
+        messagesError: action.payload,
       };
 
     default:
