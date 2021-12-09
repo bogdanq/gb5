@@ -9,7 +9,7 @@ export const Message = withCounter(
     return (
       <div
         className={classNames(styles.message, {
-          [styles.currentMessage]: message.author === "User",
+          [styles.currentMessage]: message.author !== "Bot",
         })}
       >
         <h3>{message.message}</h3>

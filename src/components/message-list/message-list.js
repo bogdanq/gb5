@@ -1,14 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Input, InputAdornment } from "@mui/material";
 import { Send } from "@mui/icons-material";
 import { Message } from "./message";
 import { useStyles } from "./use-styles";
-import {
-  messagesSelector,
-  sendMessage,
-  sendMessageWithBot,
-} from "../../store/messages";
+import { messagesSelector, sendMessageFB } from "../../store/messages";
 import {
   conversationsSelector,
   messageValueSelector,
@@ -16,7 +12,7 @@ import {
 } from "../../store/conversations";
 import { useDispatch, useSelector } from "react-redux";
 
-export const MessageList = () => {
+export const MessageList = ({ session }) => {
   const { roomId } = useParams();
   const navigate = useNavigate();
   const styles = useStyles();
@@ -29,18 +25,13 @@ export const MessageList = () => {
   const ref = useRef(null);
   const refWrapper = useRef(null);
 
-  const send = useCallback(
-    (author = "User", botMessage) => {
-      if (value || botMessage) {
-        dispatch(
-          sendMessageWithBot({ author, message: value || botMessage }, roomId)
-        );
-        // dispatch(sendMessage({ author, message: value || botMessage }, roomId));
-        // setValue("");
-      }
-    },
-    [value, roomId, dispatch]
-  );
+  const send = useCallback(() => {
+    if (value) {
+      dispatch(
+        sendMessageFB({ author: session?.email, message: value }, roomId)
+      );
+    }
+  }, [value, roomId, dispatch, session]);
 
   useEffect(() => {
     if (refWrapper.current) {

@@ -78,7 +78,7 @@ const App = () => {
                   path="/chat/*"
                   element={
                     <PrivateRoute isAuth={isAuth} to="/login">
-                      <ChatPage />
+                      <ChatPage session={session} />
                     </PrivateRoute>
                   }
                 />

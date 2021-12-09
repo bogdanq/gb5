@@ -3,7 +3,9 @@ import { makeStyles } from "@mui/styles";
 import { useNavigate } from "react-router-dom";
 import { AccountCircle } from "@mui/icons-material";
 import { deleteConversation } from "../../../store/conversations";
+import { lastMessageSelector } from "../../../store/messages";
 import styles from "./chat.module.css";
+import { useSelector } from "react-redux";
 
 const useStyles = makeStyles(() => {
   return {
@@ -21,6 +23,7 @@ const useStyles = makeStyles(() => {
 export function Chat({ title, selected, handleListItemClick, dispatch }) {
   const s = useStyles();
   const navigate = useNavigate();
+  const message = useSelector(lastMessageSelector(title));
 
   const deleteRoom = (e) => {
     dispatch(deleteConversation(title));
@@ -33,6 +36,7 @@ export function Chat({ title, selected, handleListItemClick, dispatch }) {
       button={true}
       selected={selected}
       onClick={handleListItemClick}
+      data-testid="wrapper"
     >
       <ListItemIcon>
         <button onClick={deleteRoom}>X</button>
@@ -40,6 +44,7 @@ export function Chat({ title, selected, handleListItemClick, dispatch }) {
       </ListItemIcon>
       <div className={styles.description}>
         <ListItemText className={styles.text} primary={title} />
+        <ListItemText className={styles.text} primary={message?.message} />
         <ListItemText className={styles.text} primary="12.30" />
       </div>
     </ListItem>

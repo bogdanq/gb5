@@ -6,7 +6,7 @@ import { ThemaContext } from "../theme-context";
 import { getConversationsFB } from "../store/conversations";
 import { getMessagesFB } from "../store/messages";
 
-export const ChatPage = () => {
+export const ChatPage = ({ session }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -44,7 +44,12 @@ export const ChatPage = () => {
       />
       <Route
         path="/:roomId"
-        element={<Layout chats={<ChatList />} messages={<MessageList />} />}
+        element={
+          <Layout
+            chats={<ChatList />}
+            messages={<MessageList session={session} />}
+          />
+        }
       />
     </Routes>
   );
