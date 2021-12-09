@@ -1,13 +1,18 @@
 import { Chat } from "./chat";
 import { renderWithRedux } from "../../../utils/render-with-redux";
 
-const state = {
-  messages: {
+let state = null;
+
+beforeEach(() => {
+  state = {
     messages: {
-      room1: [{ id: 1, author: "User", message: "test" }],
+      messages: {
+        room1: [{ id: 1, author: "User", message: "test" }],
+      },
     },
-  },
-};
+  };
+});
+
 describe("Chat component", () => {
   it("should render Ctat with title prop", () => {
     const { container } = renderWithRedux(<Chat title="room1" />, state);
